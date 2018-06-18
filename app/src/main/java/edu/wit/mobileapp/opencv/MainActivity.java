@@ -1,18 +1,17 @@
 package edu.wit.mobileapp.opencv;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.media.Image;
 import android.os.AsyncTask;
-import android.provider.MediaStore;
-import android.support.annotation.NonNull;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
+import android.provider.MediaStore;
+import android.support.v7.app.AppCompatActivity;
 import android.util.SparseArray;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -21,28 +20,17 @@ import com.google.android.gms.vision.Frame;
 import com.google.android.gms.vision.text.Text;
 import com.google.android.gms.vision.text.TextBlock;
 import com.google.android.gms.vision.text.TextRecognizer;
-import com.google.api.client.extensions.android.http.AndroidHttp;
-import com.google.api.client.googleapis.json.GoogleJsonResponseException;
-import com.google.api.client.http.HttpTransport;
-import com.google.api.client.json.JsonFactory;
-import com.google.api.client.util.IOUtils;
-import com.google.api.services.vision.v1.Vision;
-import com.google.api.services.vision.v1.VisionRequestInitializer;
-import com.google.api.services.vision.v1.model.AnnotateImageRequest;
-import com.google.api.services.vision.v1.model.BatchAnnotateImagesRequest;
-import com.google.api.services.vision.v1.model.BatchAnnotateImagesResponse;
-import com.google.api.services.vision.v1.model.Feature;
-import com.google.api.services.vision.v1.model.TextAnnotation;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.text.DateFormatSymbols;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
+
+import static edu.wit.mobileapp.opencv.Login.UserEmail;
+import static java.lang.Integer.parseInt;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -50,6 +38,22 @@ public class MainActivity extends AppCompatActivity {
     public ImageView imageView;
     public Button btnScan;
     public TextView txtResult;
+    public EditText txtcost;
+    public EditText txtdate;
+    public EditText txtname;
+
+
+    String finalResult ;
+
+
+    String HttpURL = "http://35.196.62.65/mobile/AddItem.php";
+    Boolean CheckEditText ;
+    ProgressDialog progressDialog;
+    HashMap<String,String> hashMap = new HashMap<>();
+    HttpParse httpParse = new HttpParse();
+
+    public String email;
+    public TextView helloemail;
     public Bitmap myBitmap;
     private TextRecognizer textRecognizer;
     private String RecDate ="nodatefound";
@@ -59,10 +63,19 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+         email = getIntent().getExtras().getString(UserEmail);
+
+
 
         imageView = (ImageView)findViewById(R.id.imageView);
         btnScan = (Button) findViewById(R.id.btnScan);
-        txtResult = (TextView)findViewById(R.id.txtResult);
+        txtcost = (EditText) findViewById(R.id.recieptCost);
+        txtdate = (EditText)findViewById(R.id.recieptDate);
+        txtname = (EditText)findViewById(R.id.recieptName);
+
+
+        helloemail = (TextView)findViewById(R.id.helloname);
+        helloemail.setText("Welcome " + email);
 
         textRecognizer = new TextRecognizer.Builder(getApplicationContext()).build();
 
@@ -103,7 +116,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void doThis(View view) {
-        txtResult.setText("");
+        txtdate.setText("");
+        txtcost.setText("");
+        txtname.setText("");
 
         if(!textRecognizer.isOperational())
         {
@@ -200,12 +215,9 @@ public class MainActivity extends AppCompatActivity {
                     RecDate = sdf.format(new Date());
                 }
 
-                txtResult.setText(txtResult.getText() + "----------" + "\n");
-                txtResult.setText(txtResult.getText() + "Total is: " + "\n");
-                txtResult.setText(txtResult.getText() + Collections.max(numbers).toString() + "\n");
-                txtResult.setText(txtResult.getText() + "Date is: " + "\n");
-                txtResult.setText(txtResult.getText() + RecDate + "\n");
-                txtResult.setText(txtResult.getText() + "----------" + "\n");
+                txtcost.setText(Collections.max(numbers).toString());
+                txtdate.setText(RecDate);
+
 
             }
         }
@@ -272,12 +284,39 @@ public class MainActivity extends AppCompatActivity {
 
     public void dono(View view) {
         Toast.makeText(MainActivity.this, "Lets correct the data", Toast.LENGTH_SHORT).show();
-        txtResult.setText("");
+        txtdate.setText("");
+        txtcost.setText("");
+        txtname.setText("");
 
     }
 
     public void doyes(View view) {
-        Toast.makeText(MainActivity.this, "Sending to Server", Toast.LENGTH_SHORT).show();
+        if(txtname.getText().toString().isEmpty() || txtcost.getText().toString().isEmpty() || txtdate.getText().toString().isEmpty())
+        {
+            Toast.makeText(MainActivity.this, "Fill in blank fields", Toast.LENGTH_SHORT).show();
+        }
+        else
+        {
+            Toast.makeText(MainActivity.this, "Sending to Server", Toast.LENGTH_SHORT).show();
+            String name = txtname.getText().toString();
+            String cost = "-" + txtcost.getText().toString();
+            String[] dateparts = txtdate.getText().toString().split("/");
+            String month = getMonth(parseInt(dateparts[0])).toLowerCase();
+            String day = dateparts[1];
+
+
+            AddItemFunction(email, month, day, name, cost);
+
+        }
+
+
+
+
+    }
+
+
+    public String getMonth(int month) {
+        return new DateFormatSymbols().getMonths()[month-1].toLowerCase();
     }
 
     public void takepicture(View view) {
@@ -290,5 +329,67 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode,resultCode,data);
         myBitmap = (Bitmap)data.getExtras().get("data");
         imageView.setImageBitmap(myBitmap);
+    }
+
+
+    public void AddItemFunction(final String email, final String month, final String day, final String itemname, final String itemvalue){
+
+        class AddItemClass extends AsyncTask<String,Void,String> {
+
+            @Override
+            protected void onPreExecute() {
+                super.onPreExecute();
+
+                progressDialog = ProgressDialog.show(MainActivity.this,"Sending Data",null,true,true);
+            }
+
+            @Override
+            protected void onPostExecute(String httpResponseMsg) {
+
+                super.onPostExecute(httpResponseMsg);
+
+                progressDialog.dismiss();
+
+                if(httpResponseMsg.equalsIgnoreCase("Item Successfully Added.")){
+
+                    txtdate.setText("");
+                    txtcost.setText("");
+                    txtname.setText("");
+
+                }
+                else{
+
+                    Toast.makeText(MainActivity.this, httpResponseMsg,Toast.LENGTH_LONG).show();
+                }
+
+            }
+
+            @Override
+            protected String doInBackground(String... params) {
+
+                hashMap.put("month",params[0]);
+
+                hashMap.put("email",params[1]);
+
+                hashMap.put("day",params[2]);
+
+                hashMap.put("itemname",params[3]);
+
+                hashMap.put("itemvalue",params[4]);
+
+                finalResult = httpParse.postRequest(hashMap, HttpURL);
+
+                return finalResult;
+            }
+        }
+
+        AddItemClass userLoginClass = new AddItemClass();
+
+        userLoginClass.execute(month,email,day, itemname, itemvalue);
+    }
+
+    public void logout(View view) {
+        Intent intent = new Intent(MainActivity.this, Login.class);
+        startActivity(intent);
     }
 }

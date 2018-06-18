@@ -11,6 +11,32 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/helloname"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:fontFamily="casual"
+            android:text="Welcome"
+            android:textAlignment="center"
+            android:textSize="24sp"
+            android:textStyle="bold" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Log out"
+            android:onClick="logout"/>
+
+
+
+    </LinearLayout>
+
 
         <ImageView
             android:id="@+id/imageView"
@@ -21,58 +47,95 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:gravity="center"
             android:orientation="horizontal">
 
             <Button
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:onClick="changepic"
                 android:layout_gravity="center"
-                android:text="amer"/>
-
-            <Button
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:onClick="changepic2"
-                android:layout_gravity="center"
-                android:text="swiss"/>
-
-            <Button
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:onClick="changepic3"
-                android:layout_gravity="center"
-                android:text="sample"/>
-
-            <Button
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
                 android:onClick="takepicture"
-                android:layout_gravity="center"
-                android:text="Take Pic"/>
-
+                android:text="Take Pic"
+                android:textAlignment="center" />
 
 
             <Button
                 android:id="@+id/btnScan"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:onClick="doThis"
                 android:layout_gravity="center"
-                android:text="Get Info"/>
+                android:onClick="doThis"
+                android:text="Get Info" />
 
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_gravity="center"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="The total is" />
+
+            <EditText
+                android:id="@+id/recieptCost"
+                android:layout_width="309dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+            android:layout_gravity="center"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="The date is" />
+
+            <EditText
+                android:id="@+id/recieptDate"
+                android:layout_width="307dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_gravity="center"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="The Name is" />
+
+            <EditText
+                android:id="@+id/recieptName"
+                android:layout_width="294dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="" />
 
 
         </LinearLayout>
 
 
 
-        <TextView
-            android:layout_gravity="center"
-            android:id="@+id/txtResult"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="" />
+
+
+
 
     <LinearLayout
         android:layout_width="match_parent"
